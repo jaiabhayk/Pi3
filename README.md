@@ -20,7 +20,7 @@ For data preprocessing:
 
 - **Depth Estimation**: We follow [MonST3R](https://github.com/Junyi42/monst3r/blob/main/data/evaluation_script.md) to prepare Sintel, Bonn, KITTI and NYU-v2.
 - **Camera Pose Estimation**
-    - Angular: We follow [VGGT](https://github.com/facebookresearch/vggt/blob/evaluation/evaluation/README.md) to prepare Co3Dv2, and we afford [our script](datasets/preprocess/prepare_re10k.sh) for RealEstate10k preprocessing.
+    - Angular: We follow [VGGT](https://github.com/facebookresearch/vggt/blob/evaluation/evaluation/README.md) to prepare Co3Dv2, and we afford [our script](bash datasets/preprocess/prepare_re10k.sh) for RealEstate10k preprocessing.
     - Distance: We follow [MonST3R](https://github.com/Junyi42/monst3r/blob/main/data/evaluation_script.md) to prepare Sintel, TUM-dynamics and ScanNetv2.
 - **Point Map Estimation**: We follow [Spann3R](https://github.com/HengyiWang/spann3r/blob/main/docs/data_preprocess.md) to prepare 7-Scenes, Neural-NRGBD and DTU. We afford [our script](bash datasets/preprocess/prepare_eth3d.sh) for ETH3D preprocessing.
 
