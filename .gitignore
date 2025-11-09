@@ -21,6 +21,8 @@ batchscript-*
 /trainlog
 /tmp
 /datasets/info
+datasets/preprocess/metadata/
+
 
 # files are probably not needed
 *.pyc
