@@ -22,7 +22,7 @@ For data preprocessing:
 - **Camera Pose Estimation**
     - Angular: We follow [VGGT](https://github.com/facebookresearch/vggt/blob/evaluation/evaluation/README.md) to prepare Co3Dv2, and we afford [our script](bash datasets/preprocess/prepare_re10k.sh) for RealEstate10k preprocessing.
     - Distance: We follow [MonST3R](https://github.com/Junyi42/monst3r/blob/main/data/evaluation_script.md) to prepare Sintel, TUM-dynamics and ScanNetv2.
-- **Point Map Estimation**: We follow [Spann3R](https://github.com/HengyiWang/spann3r/blob/main/docs/data_preprocess.md) to prepare 7-Scenes, Neural-NRGBD and DTU. We afford [our script](bash datasets/preprocess/prepare_eth3d.sh) for ETH3D preprocessing.
+- **Point Map Estimation**: We follow [Spann3R](https://github.com/HengyiWang/spann3r/blob/main/docs/data_preprocess.md) to prepare 7-Scenes,  and DTU, Neural-NRGBD (./download_neural_rgbd.sh). We afford [our script](bash datasets/preprocess/prepare_eth3d.sh) for ETH3D preprocessing.
 
 > We provide reference-only preprocessing scripts under `datasets/preprocess`. Please ensure you have obtained the necessary licenses from the original dataset providers before proceeding.
 
