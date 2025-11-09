@@ -1,5 +1,5 @@
 
-mkdir -p data/eth3d
+mkdir  data/eth3d
 cd data/eth3d
 
 wget https://www.eth3d.net/data/multi_view_training_dslr_jpg.7z
