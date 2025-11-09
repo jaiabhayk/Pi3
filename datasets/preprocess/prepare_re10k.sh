@@ -3,7 +3,7 @@
 # download metadata
 mkdir data/re10k
 cd data/re10k
-wget https://storage.cloud.google.com/realestate10k-public-files/RealEstate10K.tar.gz
+wget -O RealEstate10K.tar.gz https://storage.googleapis.com/realestate10k-public-files/RealEstate10K.tar.gz
 tar -xvzf RealEstate10K.tar.gz
 mv RealEstate10K metadata
 rm RealEstate10K.tar.gz
