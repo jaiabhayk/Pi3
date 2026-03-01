@@ -45,14 +45,14 @@ class CameraHead(nn.Module):
         self.fc_t = nn.Linear(output_dim, 3)
         self.fc_rot = nn.Linear(output_dim, 9)
 
-    def forward(self, feat, patch_h, patch_w):
-        BN, hw, c = feat.shape
+    def forward(self, feat1, patch_h, patch_w):
+        BN, hw, c = feat1.shape
 
         for i in range(2):
-            feat = self.res_conv[i](feat)
+            feat = self.res_conv[i](feat1)
 
         # feat = self.avgpool(feat)
-        feat = self.avgpool(feat.permute(0, 2, 1).reshape(BN, -1, patch_h, patch_w).contiguous())              ##########
+        feat = self.avgpool(feat.permute(0, 2, 1).reshape(BN, -1, patch_h, patch_w).contiguous())             ##########
         feat = feat.view(feat.size(0), -1)
 
         feat = self.more_mlps(feat)  # [B, D_]

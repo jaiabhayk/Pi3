@@ -1,27 +1,27 @@
 # @package _global_
 
 defaults:
-  - override /data: relpose-distance
+  - override /data: depth
 
-name: relpose-distance
+name: monodepth
 
 pi3:
   pretrained_model_name_or_path: yyfz233/Pi3
   # pretrained_model_name_or_path: checkpoints/Pi3
 
 eval_datasets:
-  # - sintel
-  #- tum
-  - scannetv2
+  - sintel
+  - bonn
+  - kitti
+  - nyu-v2
 
-no_crop: False
+invariant: median-scale  # using median(gt) / median(pred) as scale factor
+
+overwrite: False
+no_crop: True
 load_img_size: 512
-pose_eval_stride: 1
 
 device: cuda
 
 verbose: False
-
-seed: 42
-
 save_suffix: null

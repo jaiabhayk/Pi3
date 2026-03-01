@@ -12,8 +12,6 @@ import rootutils
 root = rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 from pi3.models.pi3 import Pi3
 from pi3.utils.geometry import se3_inverse
-from pi3.models.token_compressed_pi3 import Pi3WithToMe
-
 
 
 def load_images(filelist: List[str], PIXEL_LIMIT: int = 255000, new_width: Optional[int] = None, verbose: bool = False):
@@ -155,11 +153,7 @@ def infer_mv_pointclouds(filelist: str, model: Pi3, hydra_cfg: DictConfig, data_
 
     with torch.no_grad():
         with torch.amp.autocast(hydra_cfg.device, dtype=dtype):
-            if isinstance(model, Pi3WithToMe):
-                pred = model(imgs, apply_merging=True)
-            else:
-                pred = model(imgs)
-            
+            pred = model(imgs)
     
     global_points = pred['points'][0]  # (N, h, w, 3)
     global_points = F.interpolate(

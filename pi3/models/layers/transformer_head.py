@@ -67,15 +67,110 @@ class LinearPts3d (nn.Module):
 
         self.proj = nn.Linear(dec_embed_dim, (output_dim)*self.patch_size**2)
 
-    def forward(self, decout, img_shape):
+    def forward_org(self, decout, img_shape, grid_shape=None):
+        H, W = img_shape
+        tokens = decout[-1]
+        B, S, D = tokens.shape #torch.Size([5, 1036, 1024])
+
+        # extract 3D points
+        feat = self.proj(tokens)  # B,S,D, #torch.Size([5, 1036, 588])
+        feat = feat.transpose(-1, -2).view(B, -1, H//self.patch_size, W//self.patch_size) #torch.Size([5, 588, 28, 37])
+
+        feat = F.pixel_shuffle(feat, self.patch_size)  # B,3,H,W, torch.Size([5, 3, 392, 518])
+
+        # permute + norm depth
+        return feat.permute(0, 2, 3, 1) #torch.Size([5, 392, 518, 3])
+    
+    #import torch.nn.functional as F
+
+    def forward(self, decout, img_shape, grid_shape):
+        """
+        Args:
+            decout: list of token embeddings
+            img_shape: (H, W) — full output resolution
+            grid_shape: (h, w) — spatial grid size after token merging (e.g. 14×18)
+        Returns:
+            feat: (B, H, W, 3) — dense XYZ map
+        """
+        H, W = img_shape
+        h, w = grid_shape
+        tokens = decout[-1]  # (B, S, D)
+        B, S, D = tokens.shape
+
+        assert S == h * w, f"Expected {h*w} tokens but got {S}"
+
+        # Project each token to 3D (XYZ)
+        feat = self.proj(tokens)             # (B, S, 3)
+
+        # Reshape to 2D token grid
+        feat = feat.transpose(-1, -2).view(B, -1,h, w)
+        feat = F.pixel_shuffle(feat, self.patch_size)
+        feat = F.interpolate(feat, size=(H, W), mode='bilinear', align_corners=True)
+
+        return feat.permute(0, 2, 3, 1)  # (B, H, W, 3)
+
+    def forward_nkn(self, decout, img_shape):
+        """
+        Args:
+            decout: list of token embeddings from decoder
+            img_shape: (H, W) — full-resolution image target
+        Returns:
+            feat: (B, H, W, 3) — per-pixel 3D output
+        """
+        H, W = img_shape
+        tokens = decout[-1]            # (B, S, D)
+        B, S, D = tokens.shape
+
+        # Project each token to XYZ
+        feat = self.proj(tokens)       # (B, S, 3)
+
+        # Infer spatial layout (must be square)
+        patch_grid_h = int(S ** 0.5)
+        patch_grid_w = patch_grid_h
+        assert patch_grid_h * patch_grid_w == S, f"Token count {S} must form a square grid."
+
+        # Reshape to (B, 3, h, w) for interpolation
+        feat = feat.view(B, patch_grid_h, patch_grid_w, 3).permute(0, 3, 1, 2)  # (B, 3, h, w)
+
+        # Bilinear upsample to full resolution
+        feat = F.interpolate(feat, size=(H, W), mode='bilinear', align_corners=False)
+
+        return feat.permute(0, 2, 3, 1)  # (B, H, W, 3)
+
+    
+    
+    def forward_new(self, decout, img_shape):
         H, W = img_shape
         tokens = decout[-1]
         B, S, D = tokens.shape
+        feat = self.proj(tokens)  # B, S, 588 (or maybe not...)
 
-        # extract 3D points
-        feat = self.proj(tokens)  # B,S,D
-        feat = feat.transpose(-1, -2).view(B, -1, H//self.patch_size, W//self.patch_size)
-        feat = F.pixel_shuffle(feat, self.patch_size)  # B,3,H,W
+        try:
+            feat1 = feat.transpose(-1, -2).reshape(B, -1, H // self.patch_size, W // self.patch_size)
+            feat = F.pixel_shuffle(feat1, self.patch_size)
+        except RuntimeError as e:
+            print("⚠️ Pixel shuffle failed:", e)
+            print("Tokens:", tokens.shape)
+            print("Channels:", feat.shape[1])
+            # fallback: mean + drop to 3 channels
+            feat = feat.mean(dim=1, keepdim=True)              # (B, 1, D)
+            feat = feat.transpose(1, 2).reshape(B, D, 1, 1)     # (B, D, 1, 1)
+            feat = feat[:, :3]                                  # cut to (B, 3, 1, 1)
+            feat = F.interpolate(feat, size=(H, W), mode="bilinear", align_corners=False)
 
-        # permute + norm depth
         return feat.permute(0, 2, 3, 1)
+
+
+        try:
+            feat1 = feat.transpose(-1, -2).reshape(B, -1, H//self.patch_size, W//self.patch_size)
+            feat = F.pixel_shuffle(feat1, self.patch_size)
+        except RuntimeError as e:
+            print("⚠️ Pixel shuffle failed:", e)
+            print("Tokens:", tokens.shape)
+            print("Channels:", feat.shape[1])
+            # fallback: mean + interpolate to (H, W)
+            feat = feat.mean(dim=1, keepdim=True)  # (B, 1, D)
+            feat = feat.transpose(1, 2).reshape(B, feat.shape[-1], 1, 1)
+            feat = F.interpolate(feat, size=(H, W), mode="bilinear", align_corners=False)
+
+        return feat.permute(0, 2, 3, 1)  # (B, H, W, 3)

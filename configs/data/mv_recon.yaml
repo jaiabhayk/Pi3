@@ -21,7 +21,7 @@
     strategy: stride
     kf_every: 40  # our dense setting
   seq_id_map: datasets/seq-id-maps/7scenes_mv-recon_seq-id-map-kf40.json
-
+     
 NRGBD-sparse:
   cfg:
     _target_: datasets.nrgbd.NRGBD

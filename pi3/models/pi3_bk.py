@@ -129,7 +129,7 @@ class Pi3(nn.Module, PyTorchModelHubMixin):
         self.register_buffer("image_std", image_std)
 
 
-    def decode(self, hidden, N, H, W, num_keep=None):
+    def decode(self, hidden, N, H, W):
         BN, hw, _ = hidden.shape
         B = BN // N
 
@@ -144,13 +144,7 @@ class Pi3(nn.Module, PyTorchModelHubMixin):
         hw = hidden.shape[1]
 
         if self.pos_type.startswith('rope'):
-            #pos = self.position_getter(B * N, H//self.patch_size, W//self.patch_size, hidden.device)
-            if num_keep is not None and isinstance(num_keep, tuple):
-                h_new, w_new = num_keep  # now tuple (14, 18)
-            else:
-                h_new, w_new = H // self.patch_size, W // self.patch_size
-            pos = self.position_getter(B * N, h_new, w_new, hidden.device)
-
+            pos = self.position_getter(B * N, H//self.patch_size, W//self.patch_size, hidden.device)
 
         if self.patch_start_idx > 0:
             # do not use position embedding for special tokens (camera and register tokens)
@@ -198,7 +192,7 @@ class Pi3(nn.Module, PyTorchModelHubMixin):
         with torch.amp.autocast(device_type='cuda', enabled=False):
             # local points
             point_hidden = point_hidden.float()
-            ret = self.point_head([point_hidden[:, self.patch_start_idx:]], (H, W), grid_shape=(14, 18)).reshape(B, N, H, W, -1)
+            ret = self.point_head([point_hidden[:, self.patch_start_idx:]], (H, W)).reshape(B, N, H, W, -1)
             xy, z = ret.split([2, 1], dim=-1)
             z = torch.exp(z)
             local_points = torch.cat([xy * z, z], dim=-1)

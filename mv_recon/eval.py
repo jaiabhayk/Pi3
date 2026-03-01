@@ -11,7 +11,9 @@ from omegaconf import DictConfig
 
 import rootutils
 root = rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
-from pi3.models.pi3 import Pi3
+#from pi3.models.pi3 import Pi3
+from pi3.models.token_compressed_pi3 import Pi3WithToMe as Pi3
+
 from utils.interfaces import infer_mv_pointclouds
 from mv_recon.utils import umeyama, accuracy, completion
 from utils.messages import set_default_arg, write_csv

@@ -21,7 +21,7 @@ class ETH3D(Dataset):
         self,
         ETH3D_DIR: str,
         load_img_size: int = 518,
-        cache_file: str = "data/dataset_cache/eth3d_mv_recon_cache.npy",
+        cache_file: str = "/workspace/code/pi3_abh/Pi3/data/dataset_cache/eth3d_mv_recon_cache.npy",
     ):
         
         self.ETH3D_DIR = ETH3D_DIR

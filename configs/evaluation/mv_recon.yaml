@@ -8,14 +8,17 @@ name: mv_recon
 pi3:
   pretrained_model_name_or_path: yyfz233/Pi3
   # pretrained_model_name_or_path: checkpoints/Pi3
+  use_token_merging: true
+  token_merge_keep_ratio: 0.5
+
 
 eval_datasets:
-  - 7scenes-sparse
+  #- 7scenes-sparse
   - 7scenes-dense
-  - NRGBD-sparse
-  - NRGBD-dense
-  - DTU
-  - ETH3D
+  #- NRGBD-sparse
+  #- NRGBD-dense
+  #- DTU
+  #- ETH3D
 
 no_crop: True
 load_img_size: 518
